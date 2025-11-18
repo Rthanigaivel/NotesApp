@@ -63,6 +63,7 @@ fun AddEditNoteScreen(
     }
     val scope = rememberCoroutineScope()
 
+
     LaunchedEffect(key1 = true) {
         viewModel.evenFlow.collectLatest { event ->
             when (event) {
