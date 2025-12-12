@@ -42,10 +42,12 @@ class AddEditNoteViewModel @Inject constructor(
 
     private var currentNoteId: Int? = null
 
+    var isShareDialogVisible = mutableStateOf(false)
+        private set
+
     init {
-        savedStateHandle.get<Int>("noteId")?.let {
-            noteId ->
-            if(noteId != -1){
+        savedStateHandle.get<Int>("noteId")?.let { noteId ->
+            if (noteId != -1) {
                 viewModelScope.launch {
                     noteUseCase.getNote(noteId)?.also { note ->
                         currentNoteId = note.id
@@ -91,9 +93,11 @@ class AddEditNoteViewModel @Inject constructor(
                             _noteContent.value.text.isBlank()
                 )
             }
-            is AddEditNoteEvent.ChangeColor ->{
+
+            is AddEditNoteEvent.ChangeColor -> {
                 _noteColor.value = event.color
             }
+
             is AddEditNoteEvent.SaveNote -> {
                 viewModelScope.launch {
                     try {
@@ -107,7 +111,7 @@ class AddEditNoteViewModel @Inject constructor(
                             )
                         )
                         _eventFlow.emit(UiEvent.SaveNote)
-                    }catch (e: InvalidNoteException){
+                    } catch (e: InvalidNoteException) {
                         _eventFlow.emit(
                             UiEvent.ShowSnackbar(
                                 message = e.message ?: "Couldn't save note"
@@ -116,11 +120,73 @@ class AddEditNoteViewModel @Inject constructor(
                     }
                 }
             }
+
+            is AddEditNoteEvent.ShowShareDialog -> {
+                isShareDialogVisible.value = true
+            }
+
+            is AddEditNoteEvent.HideShareDialog -> {
+                isShareDialogVisible.value = false
+            }
+
+            is AddEditNoteEvent.ShareAsText -> {
+                viewModelScope.launch {
+                    try {
+                        val data = "Title: ${noteTitle.value.text}\n\n${noteContent.value.text}"
+                        _eventFlow.emit(UiEvent.ShareText(data))
+                        isShareDialogVisible.value = false
+                    } catch (e: InvalidNoteException) {
+                        _eventFlow.emit(
+                            UiEvent.ShowSnackbar(
+                                message = e.message ?: "Couldn't save note"
+                            )
+                        )
+                    }
+                }
+            }
+
+            is AddEditNoteEvent.ShareAsDoc -> {
+                viewModelScope.launch {
+                    try {
+                        val data = "Title: ${noteTitle.value.text}\n\n${noteContent.value.text}"
+                        _eventFlow.emit(UiEvent.ShareDoc(data))
+                        isShareDialogVisible.value = false
+                    } catch (e: InvalidNoteException) {
+                        _eventFlow.emit(
+                            UiEvent.ShowSnackbar(
+                                message = e.message ?: "Couldn't save note"
+                            )
+                        )
+                    }
+                }
+            }
+
+            is AddEditNoteEvent.ShareAsImage -> {
+                viewModelScope.launch {
+                    try {
+
+                        _eventFlow.emit(UiEvent.ShareImage)
+                        isShareDialogVisible.value = false
+                    } catch (e: InvalidNoteException) {
+                        _eventFlow.emit(
+                            UiEvent.ShowSnackbar(
+                                message = e.message ?: "Couldn't save note"
+                            )
+                        )
+                    }
+                }
+            }
+
         }
     }
+
+
 
     sealed class UiEvent {
         data class ShowSnackbar(val message: String) : UiEvent()
         object SaveNote : UiEvent()
+        data class ShareText(val text: String) : UiEvent()
+        data class ShareDoc(val text: String) : UiEvent()
+        object ShareImage : UiEvent()
     }
 }

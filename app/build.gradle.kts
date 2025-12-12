@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.app.notesapp"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -79,5 +79,9 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    implementation("org.apache.poi:poi-ooxml:5.2.3")
+    implementation("androidx.compose.material:material-icons-extended")
+
 
 }

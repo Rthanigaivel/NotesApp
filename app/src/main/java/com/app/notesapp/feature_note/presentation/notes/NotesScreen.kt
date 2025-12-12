@@ -95,7 +95,7 @@ fun NotesScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Quick Note",
-                    style = MaterialTheme.typography.headlineMedium
+                    style = MaterialTheme.typography.headlineSmall
                 )
                 IconButton(
                     onClick = {
